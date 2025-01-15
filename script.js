@@ -36,12 +36,17 @@ const database = getDatabase(app);
 
 var final_result = [],
   question_no = 0,
-  time_limit = 15;
+  time_limit = 15,
+  currentTime=0,
+  timer = null,
+  correct_answer_count=0;
 
 var filteredData = {};
-$(".quiz-container,.finish_quiz").hide();
+
+$(".quiz-container,.finish_quiz,.layeout,.result-container").hide();
 
 async function showScoreRecords(table) {
+  $('.layeout').show();
   final_result = [];
   const usersRefNormalGame = ref(database, table);
   // // Listen for changes and retrieve data
@@ -56,6 +61,7 @@ async function showScoreRecords(table) {
     }
     filteredData = final_result.filter((item) => "correct_answer" in item);
     PrepareQuestion();
+    $('.layeout').hide();
   });
 }
 
@@ -75,6 +81,7 @@ function objectAscOrder(object) {
 
 // Function to retrieve data by key
 async function getDataByKey(key, table) {
+  $('.layeout').show();
   const usersRef = ref(database, table);
   const userKeyRef = child(usersRef, key);
   try {
@@ -82,6 +89,7 @@ async function getDataByKey(key, table) {
 
     if (snapshot.exists()) {
       const userData = snapshot.val();
+      $('.layeout').hide();
       return userData;
     } else {
       //  console.log('No data found for key:', key);
@@ -95,6 +103,7 @@ async function getDataByKey(key, table) {
 
 // Function to update data by key
 function updateDataByKey(key, table, newData) {
+  $('.layeout').show();
   const usersRef = ref(database, table);
   const userKeyRef = child(usersRef, key);
   // Set the data with merge option to update only specified fields
@@ -105,27 +114,31 @@ function updateDataByKey(key, table, newData) {
     .catch((error) => {
       // console.error('Error updating data:', error);
     });
+    $('.layeout').hide();
 }
 
 async function insertDataByKey(key, table, InsertData = {}) {
+  $('.layeout').show();
   getDataByKey(key, table)
     .then((userData) => {
       console.log(userData);
       if (userData == undefined || userData == null || userData == "") {
         set(ref(database, table + "/" + key), InsertData)
           .then(() => {
-            console.log(table + "/" + key);
-            console.log(InsertData);
+            $('.layeout').hide();
             return { status: 1, message: "Data inserted successfully" };
           })
           .catch((error) => {
+            $('.layeout').hide();
             return { status: 0, message: "Data is not inserted." };
           });
       } else {
+        $('.layeout').hide();
         return { status: 0, message: "Data already exists for the given key." };
       }
     })
     .catch((error) => {
+      $('.layeout').hide();
       return { status: 0, message: "Data is not able to retrieving." };
     });
 }
@@ -133,6 +146,8 @@ async function insertDataByKey(key, table, InsertData = {}) {
 $(document).on("click", "#start_quiz", async function (e) {
   let username = $("#username").val().trim();
   let name = $("#name").val().trim();
+  let category = $("#category option:selected").val();
+
   if (username == "") {
     swalMessgae("error", "Please enter the username.", "#username");
   } else if (name == "") {
@@ -140,10 +155,12 @@ $(document).on("click", "#start_quiz", async function (e) {
   } else {
     let InsertData = { username, name };
     insertDataByKey(username.toLowerCase(), "users", InsertData);
-    $(".config-container").hide();
-    $(".quiz-container").show();
-    $("#username").val("");
-    $("#name").val("");
+
+    localStorage.setItem('username',username);
+    localStorage.setItem('name',name);
+    localStorage.setItem('category',category);
+    $('.result-container').hide();
+    correct_answer_count=0;
     await showScoreRecords("questions/pongal");
   }
 });
@@ -171,6 +188,10 @@ async function PrepareQuestion() {
   startTimer("QuizTime");
   $(".quiz-content").show();
   $(".message_container").hide();
+  $(".config-container").hide();
+  $(".quiz-container").show();
+  $("#username").val("");
+  $("#name").val("");
 }
 
 // Prepare the swal message
@@ -197,6 +218,7 @@ $(document).on("click", ".answer-option", function (e) {
   $(".message_container").find(".no_option_selected_message").hide();
   if (parseInt(option) == parseInt(filteredData[question_no].correct_answer)) {
     $(".message_container").find(".success_message").show();
+    correct_answer_count++;
   } else {
     $(".message_container").find(".wrong_message").show();
     $(".answer-wrong-view").html(
@@ -260,155 +282,45 @@ const startTimer = (type) => {
       nextTime = setInterval(() => {
         $(".next-question-btn").text(`${NextcurrentTime}s`);
         if (NextcurrentTime <= 0) {
+          $(".next-question-btn").hide();
           clearInterval(nextTime);
           PrepareQuestion();
         } else {
+          $(".next-question-btn").show();
           NextcurrentTime--;
         }
       }, 1000);
-      $(".next-question-btn").show();
+      
     }
   } else {
-    $(".finish_quiz").show();
+    $(".config-container").hide();
+    $(".quiz-container").hide();
+    $("#username").val("");
+    $('.result-message').text('You scored '+correct_answer_count+' out of '+filteredData.length+'. Great effort!')
+    $('#certificate_name').text(localStorage.getItem('name'));
+    $('.result-container').show();
   }
 };
 
-// DOM element selectors
-const configContainer = document.querySelector(".config-container");
-const quizContainer = document.querySelector(".quiz-container");
-const answerOptions = quizContainer.querySelector(".answer-options");
-const nextQuestionBtn = quizContainer.querySelector(".next-question-btn");
-const questionStatus = quizContainer.querySelector(".question-status");
-const timerDisplay = quizContainer.querySelector(".timer-duration");
-const resultContainer = document.querySelector(".result-container");
-// Quiz state variables
-const QUIZ_TIME_LIMIT = 15;
-let currentTime = QUIZ_TIME_LIMIT;
-let timer = null;
-let quizCategory = "programming";
-let numberOfQuestions = 3;
-let currentQuestion = null;
-const questionsIndexHistory = [];
-let correctAnswersCount = 0;
-let disableSelection = false;
-// Display the quiz result and hide the quiz container
-const showQuizResult = () => {
-  clearInterval(timer);
-  resultContainer.style.display = "block";
-  quizContainer.style.display = "none";
-  const resultText = `You answered <b>${correctAnswersCount}</b> out of <b>${numberOfQuestions}</b> questions correctly. Great effort!`;
-  resultContainer.querySelector(".result-message").innerHTML = resultText;
-};
+$('#downloadBtn').on('click', function () {
+  html2canvas($('.certificate_container')[0]).then(function (canvas) {
+      // Convert the canvas to a data URL
+      const imageData = canvas.toDataURL('image/png');
+      
+      // Create a link element
+      const link = $('<a></a>')
+          .attr('href', imageData)
+          .attr('download', localStorage.getItem('name')+' Certificate.png')
+          .appendTo('body');
+      
+      // Programmatically click the link to trigger the download
+      link[0].click();
+      
+      // Remove the link element after the download is triggered
+      link.remove();
 
-// Fetch a random question from based on the selected category
-const getRandomQuestion = () => {
-  const categoryQuestions =
-    questions.find(
-      (cat) => cat.category.toLowerCase() === quizCategory.toLowerCase()
-    )?.questions || [];
-  // Show the results if all questions have been used
-  if (
-    questionsIndexHistory.length >=
-    Math.min(numberOfQuestions, categoryQuestions.length)
-  ) {
-    return showQuizResult();
-  }
-  // Filter out already asked questions and choose a random one
-  const availableQuestions = categoryQuestions.filter(
-    (_, index) => !questionsIndexHistory.includes(index)
-  );
-  const randomQuestion =
-    availableQuestions[Math.floor(Math.random() * availableQuestions.length)];
-  questionsIndexHistory.push(categoryQuestions.indexOf(randomQuestion));
-  return randomQuestion;
-};
-// Highlight the correct answer option and add icon
-const highlightCorrectAnswer = () => {
-  const correctOption =
-    answerOptions.querySelectorAll(".answer-option")[
-      currentQuestion.correctAnswer
-    ];
-  correctOption.classList.add("correct");
-  const iconHTML = `<span class="material-symbols-rounded"> check_circle </span>`;
-  correctOption.insertAdjacentHTML("beforeend", iconHTML);
-};
-// Handle the user's answer selection
-const handleAnswer = (option, answerIndex) => {
-  if (disableSelection) return;
-  clearInterval(timer);
-  disableSelection = true;
-  const isCorrect = currentQuestion.correctAnswer === answerIndex;
-  option.classList.add(isCorrect ? "correct" : "incorrect");
-  !isCorrect ? highlightCorrectAnswer() : correctAnswersCount++;
-  // Insert icon based on correctness
-  const iconHTML = `<span class="material-symbols-rounded"> ${
-    isCorrect ? "check_circle" : "cancel"
-  } </span>`;
-  option.insertAdjacentHTML("beforeend", iconHTML);
-  // Disable all answer options after one option is selected
-  answerOptions
-    .querySelectorAll(".answer-option")
-    .forEach((option) => (option.style.pointerEvents = "none"));
-  nextQuestionBtn.style.visibility = "visible";
-};
-// Render the current question and its options in the quiz
-const renderQuestion = () => {
-  currentQuestion = getRandomQuestion();
-  if (!currentQuestion) return;
-  disableSelection = false;
-  resetTimer();
-  startTimer();
-  // Update the UI
-  nextQuestionBtn.style.visibility = "hidden";
-  quizContainer.querySelector(".quiz-timer").style.background = "#32313C";
-  quizContainer.querySelector(".question-text").textContent =
-    currentQuestion.question;
-  questionStatus.innerHTML = `<b>${questionsIndexHistory.length}</b> of <b>${numberOfQuestions}</b> Questions`;
-  answerOptions.innerHTML = "";
-  // Create option <li> elements, append them, and add click event listeners
-  currentQuestion.options.forEach((option, index) => {
-    const li = document.createElement("li");
-    li.classList.add("answer-option");
-    li.textContent = option;
-    answerOptions.append(li);
-    li.addEventListener("click", () => handleAnswer(li, index));
+      setTimeout(function () {
+        location.reload();
+      }, 5000);
   });
-};
-// Start the quiz and render the random question
-const startQuiz = () => {
-  configContainer.style.display = "none";
-  quizContainer.style.display = "block";
-  // Update the quiz category and number of questions
-  quizCategory = configContainer.querySelector(
-    ".category-option.active"
-  ).textContent;
-  numberOfQuestions = parseInt(
-    configContainer.querySelector(".question-option.active").textContent
-  );
-  renderQuestion();
-};
-// Highlight the selected option on click - category or no. of question
-configContainer
-  .querySelectorAll(".category-option, .question-option")
-  .forEach((option) => {
-    option.addEventListener("click", () => {
-      option.parentNode.querySelector(".active").classList.remove("active");
-      option.classList.add("active");
-    });
-  });
-// Reset the quiz and return to the configuration container
-const resetQuiz = () => {
-  resetTimer();
-  correctAnswersCount = 0;
-  questionsIndexHistory.length = 0;
-  configContainer.style.display = "block";
-  resultContainer.style.display = "none";
-};
-// Event listeners
-nextQuestionBtn.addEventListener("click", renderQuestion);
-resultContainer
-  .querySelector(".try-again-btn")
-  .addEventListener("click", resetQuiz);
-// configContainer
-//   .querySelector(".start-quiz-btn")
-//   .addEventListener("click", startQuiz);
+});

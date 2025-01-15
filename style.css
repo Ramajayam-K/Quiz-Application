@@ -16,7 +16,7 @@ body {
   gap: 20px;
 }
 :where(.config-container, .quiz-container, .result-container) {
-  display: none;
+  /* display: none; */
   background: #fff;
   border-radius: 9px;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.13);
@@ -24,7 +24,7 @@ body {
 /* Quiz Configuration Stylings */
 .config-container {
   display: block;
-  width: 415px;
+  width: 500px;
   padding: 25px;
 }
 .config-container .config-title {
@@ -51,7 +51,7 @@ body {
 }
 /* Quiz Container Stylings */
 .quiz-container {
-  width: 70%;
+  width: 500px;
 }
 .quiz-container .quiz-header {
   display: flex;
@@ -142,8 +142,8 @@ body {
 /* Quiz Result Stylings */
 .result-container {
   text-align: center;
-  padding: 40px;
-  width: 410px;
+  padding: 30px;
+  width: 500px;
 }
 .result-container .result-img {
   width: 110px;
@@ -208,7 +208,7 @@ label{
 }
 
 .success_message,.wrong_message,.no_option_selected_message{
-    width: 50%;
+    width: 100%;
 }
 
 .answer-sccuess-view{
@@ -250,4 +250,39 @@ label{
 .icon-set-end{
     position: absolute;
     right: 2px;
+}
+
+.layeout{
+  background: #80808047;
+  width:100%;
+  height: 100vh;
+  z-index: 9999;
+  position: absolute;
+  top:0px;
+}
+
+.layeout div{
+  position: absolute;
+  left: 43%;
+  top: 50%;
+  transform: translateY(-50%);
+}
+.success_icon{
+  display: flex;
+  justify-content:space-between;
+}
+.result-container .success_icon span{
+  font-size: 50px;
+  display: block; 
+}
+.certificate_container{
+  position: relative;
+}
+
+#certificate_name{
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
 }
