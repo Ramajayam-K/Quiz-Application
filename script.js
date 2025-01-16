@@ -387,18 +387,23 @@ function googleTranslateElementInit() {
       );
     })
     .remove();
+  $(".goog-te-combo").select2({
+    width: "100%",
+  });
 }
 googleTranslateElementInit();
 
-$(document).on('click','#move_to_quiz_config',function (e) { 
+$(document).on("click", "#move_to_quiz_config", function (e) {
   $(".config-container").show();
   $(".quiz-container").hide();
   $("#username").val("");
   $("#name").val("");
-  NextcurrentTime=0;currentTime=0;question_no=0;
+  NextcurrentTime = 0;
+  currentTime = 0;
+  question_no = 0;
   clearInterval(nextTime);
   clearInterval(timer);
   localStorage.removeItem("username");
   localStorage.removeItem("name");
   localStorage.removeItem("category");
-})
+});

@@ -8,7 +8,7 @@
 }
 body {
   display: flex;
-  padding: 15px;
+  padding: 5px;
   align-items: center;
   justify-content: center;
   min-height: 100vh;
@@ -299,4 +299,13 @@ iframe.skiptranslate{
 
 #move_to_quiz_config{
   cursor: pointer;
+}
+
+.select2-selection,.select2-selection__rendered {
+  height: 35px !important;
+  line-height: 35px !important;
+}
+
+.select2-container--default .select2-selection--single .select2-selection__arrow{
+  top: 5px !important;
 }
