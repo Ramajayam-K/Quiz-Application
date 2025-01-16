@@ -207,7 +207,6 @@ $(document).on("click", "#start_quiz", async function (e) {
 });
 
 async function PrepareQuestion() {
-  console.log(question_no, filteredData[question_no]);
   $(".question-text").text(
     question_no + 1 + ". " + filteredData[question_no].question
   );
@@ -390,3 +389,16 @@ function googleTranslateElementInit() {
     .remove();
 }
 googleTranslateElementInit();
+
+$(document).on('click','#move_to_quiz_config',function (e) { 
+  $(".config-container").show();
+  $(".quiz-container").hide();
+  $("#username").val("");
+  $("#name").val("");
+  NextcurrentTime=0;currentTime=0;question_no=0;
+  clearInterval(nextTime);
+  clearInterval(timer);
+  localStorage.removeItem("username");
+  localStorage.removeItem("name");
+  localStorage.removeItem("category");
+})

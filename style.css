@@ -12,7 +12,7 @@ body {
   align-items: center;
   justify-content: center;
   min-height: 100vh;
-  background: #5145BA;
+  background: #98989826;
   gap: 20px;
 }
 :where(.config-container, .quiz-container, .result-container) {
@@ -289,4 +289,14 @@ label{
 
 iframe.skiptranslate{
   display: none !important;
+}
+.quiz-title,.config-title{
+  display: flex;
+  justify-content: flex-start;
+  align-items: end;
+  gap: 10px;
+}
+
+#move_to_quiz_config{
+  cursor: pointer;
 }
