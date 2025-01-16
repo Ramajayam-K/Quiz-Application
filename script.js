@@ -37,16 +37,16 @@ const database = getDatabase(app);
 var final_result = [],
   question_no = 0,
   time_limit = 15,
-  currentTime=0,
+  currentTime = 0,
   timer = null,
-  correct_answer_count=0;
+  correct_answer_count = 0;
 
 var filteredData = {};
 
 $(".quiz-container,.finish_quiz,.layeout,.result-container").hide();
 
 async function showScoreRecords(table) {
-  $('.layeout').show();
+  $(".layeout").show();
   final_result = [];
   const usersRefNormalGame = ref(database, table);
   // // Listen for changes and retrieve data
@@ -61,7 +61,7 @@ async function showScoreRecords(table) {
     }
     filteredData = final_result.filter((item) => "correct_answer" in item);
     PrepareQuestion();
-    $('.layeout').hide();
+    $(".layeout").hide();
   });
 }
 
@@ -81,7 +81,7 @@ function objectAscOrder(object) {
 
 // Function to retrieve data by key
 async function getDataByKey(key, table) {
-  $('.layeout').show();
+  $(".layeout").show();
   const usersRef = ref(database, table);
   const userKeyRef = child(usersRef, key);
   try {
@@ -89,7 +89,7 @@ async function getDataByKey(key, table) {
 
     if (snapshot.exists()) {
       const userData = snapshot.val();
-      $('.layeout').hide();
+      $(".layeout").hide();
       return userData;
     } else {
       //  console.log('No data found for key:', key);
@@ -103,7 +103,7 @@ async function getDataByKey(key, table) {
 
 // Function to update data by key
 function updateDataByKey(key, table, newData) {
-  $('.layeout').show();
+  $(".layeout").show();
   const usersRef = ref(database, table);
   const userKeyRef = child(usersRef, key);
   // Set the data with merge option to update only specified fields
@@ -114,33 +114,65 @@ function updateDataByKey(key, table, newData) {
     .catch((error) => {
       // console.error('Error updating data:', error);
     });
-    $('.layeout').hide();
+  $(".layeout").hide();
 }
 
 async function insertDataByKey(key, table, InsertData = {}) {
-  $('.layeout').show();
-  getDataByKey(key, table)
-    .then((userData) => {
-      console.log(userData);
-      if (userData == undefined || userData == null || userData == "") {
-        set(ref(database, table + "/" + key), InsertData)
-          .then(() => {
-            $('.layeout').hide();
-            return { status: 1, message: "Data inserted successfully" };
-          })
-          .catch((error) => {
-            $('.layeout').hide();
-            return { status: 0, message: "Data is not inserted." };
-          });
-      } else {
-        $('.layeout').hide();
-        return { status: 0, message: "Data already exists for the given key." };
+  try {
+    $(".layeout").show();
+
+    // Retrieve existing data by key
+    const userData = await getDataByKey(key, table);
+    console.log(userData);
+
+    if (!userData) {
+      // Insert new data if key doesn't exist
+      await set(ref(database, `${table}/${key}`), InsertData);
+      $(".layeout").hide();
+      return {
+        status: 1,
+        message: "Quiz configuration has been set successfully.",
+      };
+    } else {
+      try {
+        let check_certificate =
+          "certificate_" + localStorage.getItem("category");
+        if (
+          userData[check_certificate] != undefined &&
+          userData[check_certificate] == "yes"
+        ) {
+          return {
+            status: 0,
+            message: "You have already completed the quiz.",
+          };
+        } else if (
+          userData.username == InsertData.username &&
+          userData.name != InsertData.name
+        ) {
+          return {
+            status: 0,
+            message: "Username and name are invalid in the quiz.",
+          };
+        } else {
+          return {
+            status: 1,
+            message: "Quiz configuration has been set successfully.",
+          };
+        }
+      } catch (error) {
+        console.log(error);
       }
-    })
-    .catch((error) => {
-      $('.layeout').hide();
-      return { status: 0, message: "Data is not able to retrieving." };
-    });
+      // Key already exists
+      $(".layeout").hide();
+    }
+  } catch (error) {
+    // Handle any errors
+    $(".layeout").hide();
+    return {
+      status: 0,
+      message: "Something went wrong. Please contact admin.",
+    };
+  }
 }
 
 $(document).on("click", "#start_quiz", async function (e) {
@@ -153,15 +185,24 @@ $(document).on("click", "#start_quiz", async function (e) {
   } else if (name == "") {
     swalMessgae("error", "Please enter the your name.", "#name");
   } else {
-    let InsertData = { username, name };
-    insertDataByKey(username.toLowerCase(), "users", InsertData);
-
-    localStorage.setItem('username',username);
-    localStorage.setItem('name',name);
-    localStorage.setItem('category',category);
-    $('.result-container').hide();
-    correct_answer_count=0;
-    await showScoreRecords("questions/pongal");
+    localStorage.setItem("category", category);
+    let check_certificate = "certificate_" + localStorage.getItem("category");
+    let InsertData = { username, name, [check_certificate]: "no" };
+    let response = await insertDataByKey(
+      username.toLowerCase(),
+      "users",
+      InsertData
+    );
+    if (response.status == 1) {
+      swalMessgae("success", response.message);
+      localStorage.setItem("username", username);
+      localStorage.setItem("name", name);
+      $(".result-container").hide();
+      correct_answer_count = 0;
+      await showScoreRecords("questions/" + category);
+    } else {
+      swalMessgae("error", response.message);
+    }
   }
 });
 
@@ -200,6 +241,7 @@ function swalMessgae(icon, text, id = "") {
     icon: icon,
     text: text,
     allowOutsideClick: false,
+    timer: 3000,
     didClose: function () {
       if (id != "") {
         $(id).focus();
@@ -290,37 +332,61 @@ const startTimer = (type) => {
           NextcurrentTime--;
         }
       }, 1000);
-      
     }
   } else {
     $(".config-container").hide();
     $(".quiz-container").hide();
     $("#username").val("");
-    $('.result-message').text('You scored '+correct_answer_count+' out of '+filteredData.length+'. Great effort!')
-    $('#certificate_name').text(localStorage.getItem('name'));
-    $('.result-container').show();
+    $(".result-message").text(
+      "You scored " +
+        correct_answer_count +
+        " out of " +
+        filteredData.length +
+        ". Great effort!"
+    );
+    $("#certificate_name").text(localStorage.getItem("name"));
+    $(".result-container").show();
   }
 };
 
-$('#downloadBtn').on('click', function () {
-  html2canvas($('.certificate_container')[0]).then(function (canvas) {
-      // Convert the canvas to a data URL
-      const imageData = canvas.toDataURL('image/png');
-      
-      // Create a link element
-      const link = $('<a></a>')
-          .attr('href', imageData)
-          .attr('download', localStorage.getItem('name')+' Certificate.png')
-          .appendTo('body');
-      
-      // Programmatically click the link to trigger the download
-      link[0].click();
-      
-      // Remove the link element after the download is triggered
-      link.remove();
+$("#downloadBtn").on("click", function () {
+  html2canvas($(".certificate_container")[0]).then(function (canvas) {
+    // Convert the canvas to a data URL
+    const imageData = canvas.toDataURL("image/png");
 
-      setTimeout(function () {
-        location.reload();
-      }, 5000);
+    // Create a link element
+    const link = $("<a></a>")
+      .attr("href", imageData)
+      .attr("download", localStorage.getItem("name") + " Certificate.png")
+      .appendTo("body");
+
+    // Programmatically click the link to trigger the download
+    link[0].click();
+
+    // Remove the link element after the download is triggered
+    link.remove();
+
+    setTimeout(function () {
+      location.reload();
+    }, 5000);
   });
 });
+
+// translate
+function googleTranslateElementInit() {
+  new google.translate.TranslateElement(
+    { pageLanguage: "en" },
+    "google_translate_element"
+  );
+  $(".goog-te-combo").addClass("form-control");
+  $(".goog-te-gadget")
+    .contents()
+    .filter(function () {
+      return (
+        this.nodeType === 3 ||
+        (this.nodeType === 1 && !$(this).is("#\\:0\\.targetLanguage"))
+      );
+    })
+    .remove();
+}
+googleTranslateElementInit();

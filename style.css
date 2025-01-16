@@ -286,3 +286,7 @@ label{
   transform: translate(-50%, -50%);
   text-align: center;
 }
+
+iframe.skiptranslate{
+  display: none !important;
+}
