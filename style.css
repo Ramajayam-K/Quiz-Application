@@ -24,7 +24,7 @@ body {
 /* Quiz Configuration Stylings */
 .config-container {
   display: block;
-  width: 500px;
+  width: 460px;
   padding: 25px;
 }
 .config-container .config-title {
@@ -51,7 +51,7 @@ body {
 }
 /* Quiz Container Stylings */
 .quiz-container {
-  width: 500px;
+  width: 460px;
 }
 .quiz-container .quiz-header {
   display: flex;
@@ -143,7 +143,7 @@ body {
 .result-container {
   text-align: center;
   padding: 30px;
-  width: 500px;
+  width: 460px;
 }
 .result-container .result-img {
   width: 110px;
