@@ -387,9 +387,9 @@ function googleTranslateElementInit() {
       );
     })
     .remove();
-  $(".goog-te-combo").select2({
-    width: "100%",
-  });
+  // $(".goog-te-combo").select2({
+  //   width: "100%",
+  // });
 }
 googleTranslateElementInit();
 
