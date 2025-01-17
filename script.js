@@ -188,11 +188,7 @@ $(document).on("click", "#start_quiz", async function (e) {
     localStorage.setItem("category", category);
     let check_certificate = "certificate_" + localStorage.getItem("category");
     let InsertData = { username, name, [check_certificate]: "no" };
-    let response = await insertDataByKey(
-      username.toLowerCase(),
-      "users",
-      InsertData
-    );
+    let response = await insertDataByKey(username, "users", InsertData);
     if (response.status == 1) {
       swalMessgae("success", response.message);
       localStorage.setItem("username", username);
@@ -271,8 +267,7 @@ $(document).on("click", ".answer-option", function (e) {
   $(".answer-sccuess-view").html(
     filteredData[question_no].options[
       parseInt(filteredData[question_no].correct_answer) - 1
-    ] +
-      '<i class="icon-set-end fa-solid fa-check"></i>'
+    ] + '<i class="icon-set-end fa-solid fa-check"></i>'
   );
   clearInterval(timer);
   currentTime = 0;
@@ -307,8 +302,7 @@ const startTimer = (type) => {
           $(".answer-sccuess-view").html(
             filteredData[question_no].options[
               parseInt(filteredData[question_no].correct_answer) - 1
-            ] +
-              '<i class="icon-set-end fa-regular fa-circle-check"></i>'
+            ] + '<i class="icon-set-end fa-regular fa-circle-check"></i>'
           );
           NextcurrentTime = nextQuizTime;
           question_no++;
@@ -349,6 +343,10 @@ const startTimer = (type) => {
 };
 
 $("#downloadBtn").on("click", function () {
+  $(".layeout").show();
+  let check_certificate = "certificate_" + localStorage.getItem("category");
+  let newData = { [check_certificate]: "yes" };
+  updateDataByKey(localStorage.getItem("username"), "users", newData);
   html2canvas($(".certificate_container")[0]).then(function (canvas) {
     // Convert the canvas to a data URL
     const imageData = canvas.toDataURL("image/png");
@@ -369,6 +367,7 @@ $("#downloadBtn").on("click", function () {
       location.reload();
     }, 5000);
   });
+  $(".layeout").hide();
 });
 
 // translate
