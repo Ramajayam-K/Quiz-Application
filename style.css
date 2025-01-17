@@ -23,7 +23,7 @@ body{
 /* Quiz Configuration Stylings */
 .config-container {
   display: block;
-  width: 460px;
+  width: 500px;
   padding: 25px;
 }
 .config-container .config-title {
@@ -50,7 +50,7 @@ body{
 }
 /* Quiz Container Stylings */
 .quiz-container {
-  width: 460px;
+  width: 500px;
 }
 .quiz-container .quiz-header {
   display: flex;
@@ -141,7 +141,7 @@ body{
 .result-container {
   text-align: center;
   padding: 30px;
-  width: 460px;
+  width: 500px;
 }
 .result-container .result-img {
   width: 110px;
@@ -181,12 +181,9 @@ body{
   .result-container .result-title {
     font-size: 1.4rem;
   }
-  .config-container{
+  .config-container,.result-container,.quiz-container{
     width: 100%;
     margin: 10px;
-  }
-  .warpper_container{
-    max-width: 90vw;
   }
 }
 
