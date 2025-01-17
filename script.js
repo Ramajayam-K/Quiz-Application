@@ -249,7 +249,7 @@ function swalMessgae(icon, text, id = "") {
   });
 }
 
-$(".message_container").hide();
+// $(".message_container").hide();
 $(document).on("click", ".answer-option", function (e) {
   let option = $(this).attr("option");
   $(".quiz-content").hide();
@@ -264,7 +264,7 @@ $(document).on("click", ".answer-option", function (e) {
     $(".message_container").find(".wrong_message").show();
     $(".answer-wrong-view").html(
       filteredData[question_no].options[option - 1] +
-        '<span class="icon-set-end material-symbols-rounded"> cancel</span>'
+        '<i class="icon-set-end fa-solid fa-xmark"></i>'
     );
   }
 
@@ -272,7 +272,7 @@ $(document).on("click", ".answer-option", function (e) {
     filteredData[question_no].options[
       parseInt(filteredData[question_no].correct_answer) - 1
     ] +
-      '<span class="icon-set-end material-symbols-rounded"> check_circle </span>'
+      '<i class="icon-set-end fa-solid fa-check"></i>'
   );
   clearInterval(timer);
   currentTime = 0;
@@ -308,7 +308,7 @@ const startTimer = (type) => {
             filteredData[question_no].options[
               parseInt(filteredData[question_no].correct_answer) - 1
             ] +
-              '<span class="icon-set-end material-symbols-rounded"> check_circle </span>'
+              '<i class="icon-set-end fa-regular fa-circle-check"></i>'
           );
           NextcurrentTime = nextQuizTime;
           question_no++;

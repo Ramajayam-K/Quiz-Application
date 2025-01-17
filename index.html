@@ -26,83 +26,82 @@
           <img id="loading_screen" width="200" height="200" src="LoadingScreen.gif">
       </div>
     </div>
-    <!-- Quiz Configuration Container -->
-    <div class="config-container">
-      
-      <h2 class="config-title"><img src="logo.png" width="35">   Quiz Configuration</h2>
-      <hr>
-      <label for="username">Username : </label>
-      <input type="text" id="username" class="form-control" placeholder="Enter the username.">
-      <label for="name">Your Name: </label>
-      <input type="text" id="name" class="form-control" placeholder="Enter the name.">
-      <label for="category">Category: </label>
-      <select name="category" id="category" class="form-control">
-        <option value="pongal">Pongal</option>
-      </select>
-      <label for="Language">Language: </label>
-      <div id="google_translate_element"></div>
-      <button class="btn btn-primary mt-3" id="start_quiz" >Start Quiz</button>
-    </div>
+    <div class="warpper_container">
+      <!-- Quiz Configuration Container -->
+      <div class="config-container">
+        <h2 class="config-title"><img src="logo.png" width="35">   Quiz Configuration</h2>
+        <hr>
+        <label for="username">Username : </label>
+        <input type="text" id="username" class="form-control" placeholder="Enter the username.">
+        <label for="name">Your Name: </label>
+        <input type="text" id="name" class="form-control" placeholder="Enter the name.">
+        <label for="category">Category: </label>
+        <select name="category" id="category" class="form-control">
+          <option value="pongal">Pongal</option>
+        </select>
+        <label for="Language">Language: </label>
+        <div id="google_translate_element"></div>
+        <button class="btn btn-primary mt-3" id="start_quiz" >Start Quiz</button>
+      </div>
 
-    <!-- Quiz Container -->
-    <div class="quiz-container">
-      <header class="quiz-header">
-        <h2 class="quiz-title"><img src="logo.png" id="move_to_quiz_config" width="35">  Quiz Application</h2>
-        <div class="quiz-timer">
-          <i class="fa-solid fa-stopwatch"></i>
-          <p class="timer-duration m-0"></p>
+      <!-- Quiz Container -->
+      <div class="quiz-container">
+        <header class="quiz-header">
+          <h2 class="quiz-title"><img src="logo.png" id="move_to_quiz_config" width="35">  Quiz Application</h2>
+          <div class="quiz-timer">
+            <i class="fa-solid fa-stopwatch"></i>
+            <p class="timer-duration m-0"></p>
+          </div>
+        </header>
+          <div class="quiz-content">
+              <h1 class="question-text"></h1>
+              <div class="answer-options"></div>
+          </div>
+          <div class="message_container">
+              <div class="success_message">
+                  <i class="fa-solid fa-face-smile"></i>
+                  <p class="mt-3 m-0 text-success">Correct Answer</p>
+                  <div class="answer-sccuess-view mt-2">sdahs <i class="icon-set-end fa-solid fa-check"></i></div>
+              </div>
+              <div class="wrong_message">
+                  <i class="fa-solid fa-face-frown"></i>
+                  <p class="mt-3 m-0 text-danger">Wrong Answer</p>
+                  <div class="answer-wrong-view mt-2">sdahs <i class="icon-set-end fa-solid fa-xmark"></i></div>
+                  <p class="text-start mt-2 m-0 text-success">Correct Answer:</p>
+                  <div class="answer-sccuess-view">sdahs <i class="icon-set-end fa-solid fa-check"></i></div>
+              </div>
+              <div class="no_option_selected_message">
+                  <i class="fa-solid fa-face-surprise"></i>
+                  <p class="mt-3 m-0 text-danger">Time Up</p>
+                  <p class="text-start mt-2 m-0 text-success">Correct Answer:</p>
+                  <div class="answer-sccuess-view">sdahs <i class="icon-set-end fa-solid fa-check"></i></div>
+              </div>
+          </div>
+        <div class="quiz-footer">
+          <p class="question-status"></p>
+          <button class="next-question-btn btn btn-primary">
+          </button>
+          <button class="finish_quiz btn btn-primary">
+            Finish
+          </button>
         </div>
-      </header>
-        <div class="quiz-content">
-            <h1 class="question-text"></h1>
-            <div class="answer-options"></div>
+      </div>
+      <!-- Quiz Result Container -->
+      <div class="result-container">
+        <div class="success_icon">
+          <span>&#127881;</span>
+          <span>&#127882;</span>
+          <span style="transform: rotate(-85deg);">&#127881;</span>
         </div>
-        <div class="message_container">
-            <div class="success_message">
-                <i class="fa-solid fa-face-smile"></i>
-                <p class="mt-3 m-0 text-success">Correct Answer</p>
-                <div class="answer-sccuess-view mt-2">sdahs</div>
-            </div>
-            <div class="wrong_message">
-                <i class="fa-solid fa-face-frown"></i>
-                <p class="mt-3 m-0 text-danger">Wrong Answer</p>
-                <div class="answer-wrong-view mt-2">sdahs <span class="icon-set-end material-symbols-rounded"> cancel</span></div>
-                <p class="text-start mt-2 m-0 text-success">Correct Answer:</p>
-                <div class="answer-sccuess-view">sdahs <span class="icon-set-end material-symbols-rounded"> check_circle </span></div>
-            </div>
-            <div class="no_option_selected_message">
-                <i class="fa-solid fa-face-surprise"></i>
-                <p class="mt-3 m-0 text-danger">Time Up</p>
-                <p class="text-start mt-2 m-0 text-success">Correct Answer:</p>
-                <div class="answer-sccuess-view">sdahs <span class="icon-set-end material-symbols-rounded"> check_circle </span></div>
-            </div>
+        <h2 class="result-title">Quiz Completed!</h2>
+        <p class="result-message">You scored 6 out of 10. Great effort!</p>
+        <div class="certificate_container">
+          <img src="Certificate of Participation.png" height="310" alt="Certificate of Participation">
+          <p id="certificate_name">Ramajayam</p>
         </div>
-      <div class="quiz-footer">
-        <p class="question-status"></p>
-        <button class="next-question-btn btn btn-primary">
-        </button>
-        <button class="finish_quiz btn btn-primary">
-          Finish
-        </button>
+        <button id="downloadBtn" class="btn btn-primary mt-4">Download</button>
       </div>
     </div>
-    <!-- Quiz Result Container -->
-    <div class="result-container">
-      <div class="success_icon">
-        <span>&#127881;</span>
-        <span>&#127882;</span>
-        <span style="transform: rotate(-85deg);">&#127881;</span>
-      </div>
-      <h2 class="result-title">Quiz Completed!</h2>
-      <p class="result-message">You scored 6 out of 10. Great effort!</p>
-      <div class="certificate_container">
-        <img src="Certificate of Participation.png" height="310" alt="Certificate of Participation">
-        <p id="certificate_name">Ramajayam</p>
-      </div>
-      <button id="downloadBtn" class="btn btn-primary mt-4">Download</button>
-    </div>
-
-
     <script type="module" src="script.js?v=2"></script>
   </body>
 </html>
