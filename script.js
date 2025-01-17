@@ -236,7 +236,7 @@ function swalMessgae(icon, text, id = "") {
     icon: icon,
     text: text,
     allowOutsideClick: false,
-    timer: 3000,
+    timer: 5000,
     didClose: function () {
       if (id != "") {
         $(id).focus();
