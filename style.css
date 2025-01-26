@@ -13,6 +13,10 @@ body{
   justify-content: center;
   max-width: 100vw;
   min-height: 100vh;
+  flex-wrap: wrap;
+  gap: 30px;
+  margin-top: 10px;
+  margin-bottom: 10px;
 }
 :where(.config-container, .quiz-container, .result-container) {
   /* display: none; */
@@ -291,6 +295,32 @@ label{
   left: 50%;
   transform: translate(-50%, -50%);
   text-align: center;
+  font-size: 30px;
+  font-family: ui-monospace;
+  font-style: oblique;
+  margin: 0px;
+}
+#certificate_description{
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, 65%);
+  text-align: center;
+  font-size: 7px;
+  font-style: normal;
+  margin: 0px;
+}
+#certificate_festivalImage{
+  width: 25%;
+  position: absolute;
+  z-index: 9999;
+  right: 10%;
+  bottom: 15%;
+  transform: translate(0%, 13%);
+}
+
+#certificate_festivalImage.pongal{
+  width: 15% !important;
 }
 
 iframe.skiptranslate{
@@ -314,4 +344,21 @@ iframe.skiptranslate{
 
 .select2-container--default .select2-selection--single .select2-selection__arrow{
   top: 5px !important;
+}
+
+.Add-question-container{
+  background: #fff;
+  border-radius: 9px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.13);
+  padding: 25px;
+}
+
+.Add-question-container label{
+  font-weight: bold;
+  font-size: 16px;
+  margin-top: 10px;
+}
+
+#category{
+  text-transform: capitalize;
 }

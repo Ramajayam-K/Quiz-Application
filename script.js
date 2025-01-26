@@ -47,7 +47,7 @@ $(".quiz-container,.finish_quiz,.layeout,.result-container").hide();
 
 async function showScoreRecords(table) {
   $(".layeout").show();
-  final_result = [];
+  (final_result = []), (filteredData = {});
   const usersRefNormalGame = ref(database, table);
   // // Listen for changes and retrieve data
   onValue(usersRefNormalGame, (snapshot) => {
@@ -59,8 +59,15 @@ async function showScoreRecords(table) {
       final_result.push({ key: key }, userData[key]);
       objectAscOrder(final_result);
     }
-    filteredData = final_result.filter((item) => "correct_answer" in item);
-    PrepareQuestion();
+
+    if (table != "category") {
+      filteredData = final_result.filter((item) => "correct_answer" in item);
+      PrepareQuestion();
+    } else {
+      filteredData = final_result.filter((item) => "key" in item);
+      prepareCategaryOption(filteredData);
+    }
+
     $(".layeout").hide();
   });
 }
@@ -127,7 +134,12 @@ async function insertDataByKey(key, table, InsertData = {}) {
 
     if (!userData) {
       // Insert new data if key doesn't exist
-      await set(ref(database, `${table}/${key}`), InsertData);
+      if (key != "") {
+        await set(ref(database, `${table}/${key}`), InsertData);
+      } else {
+        await set(ref(database, `${table}`), InsertData);
+      }
+
       $(".layeout").hide();
       return {
         status: 1,
@@ -154,6 +166,10 @@ async function insertDataByKey(key, table, InsertData = {}) {
             message: "Username and name are invalid in the quiz.",
           };
         } else {
+          if (userData[check_certificate] == undefined) {
+            let newData = { [check_certificate]: "no" };
+            updateDataByKey(localStorage.getItem("username"), "users", newData);
+          }
           return {
             status: 1,
             message: "Quiz configuration has been set successfully.",
@@ -174,6 +190,9 @@ async function insertDataByKey(key, table, InsertData = {}) {
     };
   }
 }
+
+// await insertDataByKey("pongal", "category", { quiz: true });
+// await insertDataByKey("republic day", "category", { quiz: true });
 
 $(document).on("click", "#start_quiz", async function (e) {
   let username = $("#username").val().trim();
@@ -337,7 +356,24 @@ const startTimer = (type) => {
         filteredData.length +
         ". Great effort!"
     );
+    $("#certificate_festivalImage").removeClass("pongal");
+    if (localStorage.getItem("category").toLowerCase() == "pongal") {
+      $("#certificate_festivalImage").addClass("pongal");
+    }
+    let description = `Thank you for participating in the $FestiveName quiz! We hope you enjoyed testing your knowledge about this festive occasion. Stay tuned for more exciting quizzes and challenges!`;
     $("#certificate_name").text(localStorage.getItem("name"));
+    $("#certificate_description").html(
+      description.replaceAll(
+        "$FestiveName",
+        '<span class="text-capitalize fw-bold">' +
+          localStorage.getItem("category") +
+          "</span>"
+      )
+    );
+    $("#certificate_festivalImage").attr(
+      "src",
+      localStorage.getItem("category") + ".PNG"
+    );
     $(".result-container").show();
   }
 };
@@ -345,7 +381,16 @@ const startTimer = (type) => {
 $("#downloadBtn").on("click", function () {
   $(".layeout").show();
   let check_certificate = "certificate_" + localStorage.getItem("category");
-  let newData = { [check_certificate]: "yes" };
+  let rank = "rank_" + localStorage.getItem("category");
+  let newData = {
+    [check_certificate]: "yes",
+    [rank]:
+      "You scored " +
+      correct_answer_count +
+      " out of " +
+      filteredData.length +
+      ". Great effort!",
+  };
   updateDataByKey(localStorage.getItem("username"), "users", newData);
   html2canvas($(".certificate_container")[0]).then(function (canvas) {
     // Convert the canvas to a data URL
@@ -354,7 +399,13 @@ $("#downloadBtn").on("click", function () {
     // Create a link element
     const link = $("<a></a>")
       .attr("href", imageData)
-      .attr("download", localStorage.getItem("name") + " Certificate.png")
+      .attr(
+        "download",
+        localStorage.getItem("name") +
+          " Certificate of Participation in " +
+          localStorage.getItem("category") +
+          " quiz.png"
+      )
       .appendTo("body");
 
     // Programmatically click the link to trigger the download
@@ -365,7 +416,7 @@ $("#downloadBtn").on("click", function () {
 
     setTimeout(function () {
       location.reload();
-    }, 5000);
+    }, 6000);
   });
   $(".layeout").hide();
 });
@@ -406,3 +457,102 @@ $(document).on("click", "#move_to_quiz_config", function (e) {
   localStorage.removeItem("name");
   localStorage.removeItem("category");
 });
+
+function prepareOptionFieldsContent() {
+  let row = $(".question_options").length + 1;
+  let content = "";
+  content += `<div class="row m-0 p-0 mt-2 mb-1 question_options_fields" row_no="${row}" id="question_options_fields_${row}">
+        <div class="col-9 me-3 ps-1 p-0">
+            <input type="text" id="option_${row}" class="question_options form-control" placeholder="Enter the option ${row}."/>
+        </div>
+        <div class="col-2 d-flex align-items-center gap-1 justify-content-center">
+            <button class="btn btn-primary add_option_field" ><i class="fa-solid fa-plus"></i></button>
+            <button class="btn btn-danger remove_option_field" ><i class="fa-solid fa-xmark"></i></button>
+        </div>
+     </div>`;
+  if (row == 1) {
+    $(".option_fields").html(content);
+    $(".remove_option_field").remove();
+  } else {
+    $(".option_fields").append(content);
+  }
+}
+prepareOptionFieldsContent();
+
+// Add more options field
+$(document).on("click", ".add_option_field", function (e) {
+  prepareOptionFieldsContent();
+});
+
+// remove options field
+$(document).on("click", ".remove_option_field", function (e) {
+  let row_no = $(this).parent().parent().attr("row_no");
+  $("#question_options_fields_" + row_no).remove();
+  resetRowOrder();
+});
+
+//  reset the options field
+function resetRowOrder() {
+  $(".question_options_fields").each((index, element) => {
+    $(element).attr("id", "question_options_fields_" + (index + 1));
+    $(element).attr("row_no", index + 1);
+    $(element)
+      .find(".question_options")
+      .attr("placeholder", `Enter the option ${index + 1}.`);
+  });
+}
+
+// Add the new question
+$(document).on("click", "#add_new_question", function (e) {
+  let category = $("#category_name").val().trim();
+  let question = $("#question").val().trim();
+  let correct_answer = $("#correct_answer").val().trim();
+  let options = $(".question_options")
+    .map(function (item) {
+      if ($(this).val().trim() != "") {
+        return $(this).val().trim();
+      }
+    })
+    .get();
+
+  if (category == "") {
+    swalMessgae("error", "Please select the category.", "#category_name");
+  } else if (question == "") {
+    swalMessgae("error", "Please select the question.", "#question");
+  } else if ($(".question_options").length < 3) {
+    swalMessgae("error", "Min two option need for question.", "#category_name");
+  } else if (options.length != $(".question_options").length) {
+    swalMessgae("error", "Please enter the option.", "#category_name");
+  } else if (correct_answer == "") {
+    swalMessgae(
+      "error",
+      "Please select the correct_answer.",
+      "#correct_answer"
+    );
+  } else {
+    let InsertData = { question, options, correct_answer };
+    let response = insertDataByKey(
+      category.toLowerCase() + "/" + question,
+      "questions",
+      InsertData
+    );
+    swalMessgae("success", "Question inserted successfully.");
+    // if (response.status == 1) {
+    //     swalMessgae("success", response.message);
+    // } else {showScoreRecords
+    //   swalMessgae("error", response.message);
+    // }
+  }
+});
+
+await showScoreRecords("category");
+
+async function prepareCategaryOption(data) {
+  let option = '<option value="">Select a categary</option>';
+  if (data.length > 0) {
+    data.forEach((item, index) => {
+      option += `<option value="${item["key"]}">${item["key"]}</option>`;
+    });
+  }
+  $("#category").html(option);
+}
